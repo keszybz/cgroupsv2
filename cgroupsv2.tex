@@ -21,7 +21,7 @@
 \title{Brave new world of unified cgroups}
 \author{Zbigniew Jędrzejewski-Szmek}
 \institute{%
-  \includegraphics{beamer-themeredhat/redhat.png}\\
+  \includegraphics[width=10em]{Logo-redhat-color-375.png}\\
   \medskip
   \textit{zbyszek@in.waw.pl}\\
   \medskip
@@ -78,6 +78,7 @@
   \item no hierarchy \pause
   \item unusable limits \pause
   \item threads not processes \pause
+  \item no cooperation between contollers\pause
   \item no secure delegation
   \end{itemize}
 \end{frame}
@@ -85,34 +86,40 @@
 \begin{frame}[fragile]
   \begin{minted}{console}
 $ ls /sys/fs/cgroup/memory/
-cgroup.clone_children           memory.kmem.failcnt                
-cgroup.event_control            memory.kmem.limit_in_bytes                       
-cgroup.procs                    memory.kmem.max_usage_in_bytes                   
-cgroup.sane_behavior            memory.kmem.slabinfo                             
-memory.failcnt                  memory.kmem.tcp.failcnt                          
-memory.force_empty              memory.kmem.tcp.limit_in_bytes     
-memory.limit_in_bytes           memory.kmem.tcp.max_usage_in_bytes  
-memory.max_usage_in_bytes       memory.kmem.tcp.usage_in_bytes      
-memory.soft_limit_in_bytes      memory.kmem.usage_in_bytes              
-memory.usage_in_bytes           memory.numa_stat                    
-memory.use_hierarchy            memory.oom_control                  
-memory.memsw.failcnt            memory.pressure_level               
-memory.memsw.limit_in_bytes     memory.stat                          
-memory.memsw.max_usage_in_bytes memory.swappiness                    
-memory.memsw.usage_in_bytes     release_agent             
-memory.move_charge_at_immigrate system.slice/            
-tasks                           init.scope/              
-notify_on_release               user.slice/                           
-  \end{minted}                  
+cgroup.clone_children           memory.kmem.failcnt
+cgroup.event_control            memory.kmem.limit_in_bytes
+cgroup.procs                    memory.kmem.max_usage_in_bytes
+cgroup.sane_behavior            memory.kmem.slabinfo
+memory.failcnt                  memory.kmem.tcp.failcnt
+memory.force_empty              memory.kmem.tcp.limit_in_bytes
+memory.limit_in_bytes           memory.kmem.tcp.max_usage_in_bytes
+memory.max_usage_in_bytes       memory.kmem.tcp.usage_in_bytes
+memory.soft_limit_in_bytes      memory.kmem.usage_in_bytes
+memory.usage_in_bytes           memory.numa_stat
+memory.use_hierarchy            memory.oom_control
+memory.memsw.failcnt            memory.pressure_level
+memory.memsw.limit_in_bytes     memory.stat
+memory.memsw.max_usage_in_bytes memory.swappiness
+memory.memsw.usage_in_bytes     release_agent
+memory.move_charge_at_immigrate system.slice/
+tasks                           init.scope/
+notify_on_release               user.slice/
+  \end{minted}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{inconsistent interface}
 
   \begin{tabular}{l|rr}
-                   & v1   & v2 \\\hline
-    CPUShares     & 1024 & 100 \\
-    BlockIOWeight &  500 & 100
+    v1                        & default & range           \\
+    \texttt{cpu.shares}       & 1024 & 2-262144 \\
+    \texttt{blkio.bfq.weight} & 500  & 10–1000 \\
+    \hline
+    v2           \\
+    \texttt{cpu.weight}       & 100  & 1–10000 \\
+    \texttt{io.bfq.weight}%
+    \footnote{\textcolor{gray}{\url{https://github.com/systemd/systemd/pull/13335}}}
+    & 100  & 1–10000
   \end{tabular}
 \end{frame}
 
@@ -131,7 +138,7 @@ notify_on_release               user.slice/
   \pause
 
   \medskip
-  memory.max\_usage\_in\_bytes, memory.memsw.max\_usage\_in\_bytes\\
+  \texttt{memory.max\_usage\_in\_bytes}, \texttt{memory.memsw.max\_usage\_in\_bytes}\\
   swap+memory $\ge$ memory
 
   \pause
@@ -154,7 +161,7 @@ notify_on_release               user.slice/
   \frametitle{no secure delegation}
 
   not hierarchical\\\pause
-  release\_agent\\\pause
+  \texttt{release\_agent}\\\pause
   rumors of security issues
 \end{frame}
 
@@ -164,9 +171,9 @@ notify_on_release               user.slice/
   Design:
   \begin{itemize}
   \item single hierarchy
-  \item controllers are fully hierarchical
   \item consistent interface
   \item small number of controllers: memory, io, pids, cpu, cpuset
+  \item controllers are fully hierarchical
   \item (controllers can be turned midway throught the tree)
   \item high-level knobs
   \item soft limits
@@ -184,16 +191,6 @@ notify_on_release               user.slice/
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Status quo}
-  
-  v1 only: k8s, CRI-O, Docker, Containerd, runc (in progress), OCI runtime spec
-
-  \medskip
-
-  v2 too: Buildah+Podman+skopeo, crun, libvirt, JVM, snapd, systemd
-\end{frame}
-
 \begin{frame}[fragile]
   \frametitle{Old vs. New}
 
@@ -207,24 +204,33 @@ notify_on_release               user.slice/
     pids                   &  pids   \\[1em]\pause
     freezer                &  replaced by cgroup.freeze\\[1em]\pause
     devices                &  eBPF filters \\[1em]\pause
-    net\_cls,net\_prio     &  \\
-    perf\_event            &  matching by cgroup\\
-    systemd                &  \\[1em]\pause
+    net\_cls,net\_prio     &  matching by cgroup, eBPF\\
+    perf\_event            &  eBPF\\
     hugetlb                &  —
   \end{tabular}
 \end{frame}
 
 \begin{frame}
-  \frametitle{What is happening now?}
+  \frametitle{Status quo}
 
-  CPUSET in kernel 5.0, freezer in kernel 5.1\\\pause
-  (systemd supports both and translates v2 settings for v1)\\\pause
-  https://fedoraproject.org/wiki/Changes/CGroupsV2\\\pause
-  JVM, libvirt, snapd patched\\\pause
-  crun works\\
-  docker/mobi and most container runtimes — nope\\\pause
-  ``Red Hat suite'': podman, buildah, skopeo — works
+  v1 only: k8s, CRI-O, Docker, Containerd, runc (in progress), OCI runtime spec
+
+  \medskip
+
+  v2 too: Buildah+Podman+skopeo, crun, libvirt, JVM, snapd, systemd
 \end{frame}
+
+%% \begin{frame}
+%%   \frametitle{What is happening now?}
+
+%%   CPUSET in kernel 5.0, freezer in kernel 5.1\\\pause
+%%   (systemd supports both and translates v2 settings for v1)\\\pause
+%%   https://fedoraproject.org/wiki/Changes/CGroupsV2\\\pause
+%%   JVM, libvirt, snapd patched\\\pause
+%%   crun works\\
+%%   docker/mobi and most container runtimes — nope\\\pause
+%%   ``Red Hat suite'': podman, buildah, skopeo — works
+%% \end{frame}
 
 \begin{frame}
   \frametitle{Status of container runtimes}
@@ -234,7 +240,7 @@ notify_on_release               user.slice/
 
 \begin{frame}
   \frametitle{Delegation}
-  
+
   \begin{itemize}
   \item less-privileged process own a part of the cgroup tree
   \item implemented through file system permissions
@@ -274,7 +280,7 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
 \begin{frame}
   \frametitle{Delegation}
-  
+
   \begin{itemize}
   \item Delegate=io pids memory ...
   \item delegation may be nested
@@ -286,7 +292,7 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \frametitle{Threaded mode}
 
   \pause
-  
+
   v1 operated on threads, v2 operates on processes
   \medskip\pause
 
@@ -322,11 +328,19 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \frametitle{Links}
   \tiny
 
+  this talk: \url{https://github.com/keszybz/cgroupsv2/raw/master/cgroupsv2.pdf}
+
+  \medskip
+
+  docs:\\
+  \url{https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/}\\
   \url{https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html}\\
   \url{https://facebookmicrosites.github.io/cgroup2/docs/overview}\\
   \href{https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html}{systemd.resource-control(5)}\\
   \url{https://systemd.io/CGROUP_DELEGATION.html}
-  
+
+  \medskip
+
   recent changes: \\
   \url{https://www.redhat.com/sysadmin/fedora-31-control-group-v2}\\
   \url{https://fedoraproject.org/wiki/Changes/CGroupsV2}\\
@@ -335,28 +349,36 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \url{https://www.youtube.com/watch?v=yZpNsDe4Qzg} (Michael Kerrisk)
 
   freezer for cgroup v2 \href{https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/v5.1-rc3-45-g76f969e894}{v5.1-rc3-45-g76f969e894}\\
-  https://lwn.net/Articles/772377/
+  \url{https://lwn.net/Articles/772377/}
 
   \url{https://bugzilla.redhat.com/show_bug.cgi?id=1727149} libvirt support in 5.5.0
   \url{https://bugzilla.redhat.com/show_bug.cgi?id=1438079} snapd support in snapd-2.41-1.fc31
   \url{https://github.com/opencontainers/runc/pull/2113} for libcontainer
   \url{https://github.com/opencontainers/runc/issues/654} for runc
   \url{https://github.com/kubernetes/enhancements/pull/1370/files} for k8s
-
-  \url{https://github.com/systemd/systemd/issues/12460} systemd dbus 
-
   \href{https://codesearch.debian.net/search?q=cgroup.type&literal=1&perpkg=1}{codesearch.debian.net/search?q=cgroup.type}
-
   \url{https://www.kernel.org/doc/html/latest/accounting/psi.html}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Links}
+  \tiny
 
   history:\\
   \url{https://kernelnewbies.org/Linux_2_6_24#Task_Control_Groups}
+
   \url{https://kernelnewbies.org/Linux_3.16#Unified_Control_Group_hierarchy}
+
   \href{https://lwn.net/Articles/697369/}{State of CPU controller in cgroup v2} (2016)
+
   \href{https://lwn.net/Articles/729215/}{LWN: A milestone for control groups} (2017)
-  \url{https://kernelnewbies.org/Linux_4.15#Better_CPU_usage_restrictions_with_the_CPU_resource_controller_for_cgroupv2}
-  \url{https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0d5936344f30aba0f6ddb92b030cb6a05168efe6}
+
+  \href{https://kernelnewbies.org/Linux_4.15#Better_CPU_usage_restrictions_with_the_CPU_resource_controller_for_cgroupv2}{Linux 4.15}
+
+  \href{https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=v4.14-rc2-7-g0d5936344f}{v4.14-rc2-7-g0d5936344f}
+
   \url{https://www.youtube.com/watch?v=PzpG40WiEfM}
+
   \url{https://www.youtube.com/watch?v=ikZ8_mRotT4}
 \end{frame}
 
