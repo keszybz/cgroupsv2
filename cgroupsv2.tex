@@ -265,6 +265,31 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Resource management\,--\,Memory}
+  Partitioning available memory with systemd and cgroup v2 memory controller is rather complicated. Multiple options are available,
+  \begin{itemize}
+  \item \textbf{memory.min}\,--\,Hard memory protection. If memory usage is below the limit the cg memory won't be reclaimed.
+  \item \textbf{memory.low}\,--\,Soft memory protection. If memory usage is below the limit the cg memory can be reclaimed only if there is no memory to be reclaimed from unprotected cgroups.
+  \item \textbf{memory.high}\,--\,Memory throttle limit. If memory usage goes above the limit the processes in the cgroup are throttled and put under heavy reclaim pressure.
+  \item \textbf{memory.max}\,--\,Hard limit for memory usage. You can use K, M, G, T suffixes (e.g. MemoryMax=1G).
+  \end{itemize}
+
+  After you exhaust your memory limit then service is very likely to
+  get killed by OOM killer. To prevent that you need to adjust
+  \texttt{OOMScoreAdjust} value as well.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Resource management\,--\,Block I/O}
+  Block I/O controller in cgroup v2 allows for quite fine grained tuning. systemd provides following options for configuring this subsystem,
+  \begin{itemize}
+  \item \textbf{io.weight}\,--\,Set the default IO weight
+  \item \textbf{io.max}\,--\,Absolute per device bandwidth. e.g. \texttt{8:16 rbps=2097152 wiops=120}
+  \item \textbf{io.latency}\,--\,Define the per device I/O latency target (e.g. \texttt{8:16 target=10000})
+  \end{itemize}
+\end{frame}
+
 \setbeamercolor{background canvas}{bg=cyan}
 
 \begin{frame}
