@@ -149,41 +149,19 @@ memory.move_charge_at_immigrate  cgroup.sane_behavior
   \end{tabular}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Status quo}
 
-  v1 only: k8s, CRI-O, Docker, Containerd, runc (in progress), OCI runtime spec
 
-  \medskip
 
-  v2 too: Buildah+Podman+skopeo, crun, libvirt, JVM, snapd, systemd
-\end{frame}
-
-%% \begin{frame}
-%%   \frametitle{What is happening now?}
-
-%%   CPUSET in kernel 5.0, freezer in kernel 5.1\\\pause
-%%   (systemd supports both and translates v2 settings for v1)\\\pause
-%%   https://fedoraproject.org/wiki/Changes/CGroupsV2\\\pause
-%%   JVM, libvirt, snapd patched\\\pause
-%%   crun works\\
-%%   docker/mobi and most container runtimes — nope\\\pause
-%%   ``Red Hat suite'': podman, buildah, skopeo — works
-%% \end{frame}
-
-\begin{frame}
-  \frametitle{Status of container runtimes}
-
-  \includegraphics[width=\textwidth]{images/container-runtime-status.png}
-\end{frame}
+\setbeamercolor{background canvas}{bg=yellow}
 
 \begin{frame}
   \frametitle{Delegation}
 
   \begin{itemize}
-  \item less-privileged process own a part of the cgroup tree
+  \item less-privileged process owns a part of the cgroup tree
   \item implemented through file system permissions
   \item Delegate=yes in systemd units
+  \item cutoff \emph{not} at the directory level
   \end{itemize}
 \end{frame}
 
@@ -227,6 +205,8 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \end{itemize}
 \end{frame}
 
+\setbeamercolor{background canvas}{bg=green}
+
 \begin{frame}[fragile]
   \frametitle{Threaded mode}
 
@@ -248,6 +228,39 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   used by libvirt
 \end{frame}
 
+\setbeamercolor{background canvas}{bg=cyan}
+
+\begin{frame}
+  \frametitle{Status quo}
+
+  v1 only: k8s, CRI-O, Docker, Containerd, runc (in progress), OCI runtime spec
+
+  \medskip
+
+  v2 too: Buildah+Podman+skopeo, crun, libvirt, JVM, snapd, systemd
+\end{frame}
+
+%% \begin{frame}
+%%   \frametitle{What is happening now?}
+
+%%   CPUSET in kernel 5.0, freezer in kernel 5.1\\\pause
+%%   (systemd supports both and translates v2 settings for v1)\\\pause
+%%   https://fedoraproject.org/wiki/Changes/CGroupsV2\\\pause
+%%   JVM, libvirt, snapd patched\\\pause
+%%   crun works\\
+%%   docker/mobi and most container runtimes — nope\\\pause
+%%   ``Red Hat suite'': podman, buildah, skopeo — works
+%% \end{frame}
+
+\begin{frame}
+  \frametitle{Status of container runtimes}
+
+  \includegraphics[width=\textwidth]{images/container-runtime-status.png}
+\end{frame}
+
+
+\setbeamercolor{background canvas}{bg=white}
+
 \begin{frame}
   \frametitle{Summary}
 
@@ -262,6 +275,11 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \item better monitoring: PSI!
   \end{itemize}
 \end{frame}
+
+
+
+
+
 
 \begin{frame}[fragile]
   \frametitle{Links}
