@@ -228,6 +228,43 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   used by libvirt
 \end{frame}
 
+\setbeamercolor{background canvas}{bg=orange}
+
+\begin{frame}
+  \frametitle{Resource management\,--\,Resource distribution models}
+
+  \begin{itemize}
+  \item \textbf{Weights}
+    \begin{itemize}
+    \item Resource is distributed by adding up the weights of all sub-cgroups and giving each the fraction matching its ratio against the sum.
+    \item Usually used to distribute stateless resources (CPU time)
+    \item Example: cpu.weight ([1-10000], default 100)
+    \end{itemize}
+    \pause
+
+  \item \textbf{Limits}
+    \begin{itemize}
+    \item Cgroup can consume up to configured amount of the resource
+    \item Overcommit is allowed (i.e. sum of sub-cgroup limits can exceed limit of the parent cgroup)
+    \item Example: memory.max
+    \end{itemize}
+    \pause
+
+  \item \textbf{Protections}
+    \begin{itemize}
+    \item Cgroup is protected (but not guaranteed) upto configured amount of the resource
+    \item Overcommit is also allowed
+    \item Example: memory.low
+    \end{itemize}
+    \pause
+
+  \item \textbf{Allocations}
+    \begin{itemize}
+    \item Exclusive allocations of the absolute amount of a finite resource (e.g. real-time budget)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
 \setbeamercolor{background canvas}{bg=cyan}
 
 \begin{frame}
