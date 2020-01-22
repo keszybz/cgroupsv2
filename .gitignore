@@ -8,4 +8,5 @@
 *.o
 *.pdf
 _minted-*/
+images/*.kra-autosave.kra
 *~
