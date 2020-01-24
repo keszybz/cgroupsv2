@@ -109,7 +109,7 @@ memory.move_charge_at_immigrate  cgroup.sane_behavior
     \hline
     v2           \\
     \texttt{cpu.weight}       & 100  & 1–10000 \\
-    \texttt{io.bfq.weight}%
+    \texttt{io.weight}%
     \footnote{\textcolor{gray}{\url{https://github.com/systemd/systemd/pull/13335}}}
     & 100  & 1–10000
   \end{tabular}
@@ -127,6 +127,7 @@ memory.move_charge_at_immigrate  cgroup.sane_behavior
   \item (controllers can be turned off midway throught the tree)
   \item high-level knobs
   \item soft limits
+  \item non-hierarchical controllers are gone
   \end{itemize}
 \end{frame}
 
@@ -278,6 +279,14 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   After you exhaust your memory limit then service is very likely to
   get killed by OOM killer. To prevent that you need to adjust
   \texttt{OOMScoreAdjust} value as well.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Memory protections and limits}
+
+  \begin{adjustwidth}{-2em}{-2em}
+    \includegraphics[width=\paperwidth]{images/memory-protection.png}
+  \end{adjustwidth}
 \end{frame}
 
 \begin{frame}
