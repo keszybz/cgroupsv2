@@ -19,7 +19,7 @@
 %gets rid of navigation symbols
 \setbeamertemplate{navigation symbols}{}
 
-\title{Brave new world of unified cgroup hierarchy}
+\title{Brave new world of unified cgroups}
 \author{Michal Sekletár\\Zbigniew Jędrzejewski-Szmek}
 \institute{%
   \includegraphics[width=10em]{images/Logo-redhat-color-375.png}\\
@@ -28,7 +28,7 @@
   \medskip
   \ccbysa
 }
-\date{\tiny Brno, 2020.01.22}
+\date{\tiny Brno, 2020.01.24}
 
 \begin{document}
 \begin{frame}
@@ -42,6 +42,28 @@
   Unified hierarchy (a.k.a.) cgroups v2 is the default default in systemd 243 (Sept.\ 2019)\\[1em]
   \url{https://fedoraproject.org/wiki/Changes/CGroupsV2} (for F31+)\\[1em]
   Version two is just nicer!
+\end{frame}
+
+\begin{frame}
+  \frametitle{Control groups}
+
+  Control groups (cgroups) is a Linux subsystem that has two main purposes:
+  \begin{itemize}
+  \item Process tracking
+  \item Resource distribution
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Control groups}
+
+  \textbf{Cgroup} – associates a set of tasks with a set of parameters for one or
+  more controllers\\
+
+  \textbf{Controller} – schedules a resource or applie per-cgroup limits\\
+
+  \textbf{Hierarchy} – set of cgroups arranged in a tree, every process
+  is in exactly one cgroup
 \end{frame}
 
 \begin{frame}
@@ -141,12 +163,13 @@ memory.move_charge_at_immigrate  cgroup.sane_behavior
     cpu+cpuacct            &  cpu    \\
     cpuset                 &  cpuset \\
     blkio                  &  io     \\
-    pids                   &  pids   \\[1em]\pause
+    pids                   &  pids   \\
+    hugetlb                &  hugetlb (kernel 5.6)\\[1em]\pause
+
     freezer                &  replaced by cgroup.freeze\\[1em]\pause
     devices                &  eBPF filters \\[1em]\pause
     net\_cls,net\_prio     &  matching by cgroup, eBPF\\
-    perf\_event            &  eBPF\\
-    hugetlb                &  —
+    perf\_event            &  eBPF
   \end{tabular}
 \end{frame}
 
@@ -198,6 +221,7 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
 \begin{frame}
   \frametitle{Delegation}
+  \framesubtitle{is not all or nothing}
 
   \begin{itemize}
   \item Delegate=io pids memory ...
@@ -253,7 +277,7 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
   \item \textbf{Protections}
     \begin{itemize}
-    \item Cgroup is protected (but not guaranteed) upto configured amount of the resource
+    \item Cgroup is protected (but not guaranteed) up to configured amount of the resource
     \item Overcommit is also allowed
     \item Example: memory.low
     \end{itemize}
@@ -264,6 +288,14 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
     \item Exclusive allocations of the absolute amount of a finite resource (e.g. real-time budget)
     \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Memory protections and limits}
+
+  \begin{adjustwidth}{-2em}{-2em}
+    \includegraphics[width=\paperwidth]{images/memory-protection.png}
+  \end{adjustwidth}
 \end{frame}
 
 \begin{frame}
@@ -282,21 +314,19 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 \end{frame}
 
 \begin{frame}
-  \frametitle{Memory protections and limits}
-
-  \begin{adjustwidth}{-2em}{-2em}
-    \includegraphics[width=\paperwidth]{images/memory-protection.png}
-  \end{adjustwidth}
+  \frametitle{Resource management\,--\,Block I/O}
+  \texttt{io} controller in cgroup v2 allows for quite fine grained tuning.
+  systemd provides following options for configuring this subsystem:
+  \begin{itemize}
+  \item \textbf{io.weight}\,--\,IO weight
+  \item \textbf{io.max}\,--\,per-device absolute bandwidth limit (e.g. \texttt{8:16 rbps=2097152 wiops=120})
+  \item \textbf{io.latency}\,--\,per-device latency target protection (e.g. \texttt{8:16 target=10000})
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Resource management\,--\,Block I/O}
-  Block I/O controller in cgroup v2 allows for quite fine grained tuning. systemd provides following options for configuring this subsystem,
-  \begin{itemize}
-  \item \textbf{io.weight}\,--\,Set the default IO weight
-  \item \textbf{io.max}\,--\,Absolute per device bandwidth. e.g. \texttt{8:16 rbps=2097152 wiops=120}
-  \item \textbf{io.latency}\,--\,Define the per device I/O latency target (e.g. \texttt{8:16 target=10000})
-  \end{itemize}
+
+
 \end{frame}
 
 \setbeamercolor{background canvas}{bg=cyan}
