@@ -182,10 +182,10 @@ memory.move_charge_at_immigrate  cgroup.sane_behavior
   \frametitle{Delegation}
 
   \begin{itemize}
-  \item less-privileged process owns a part of the cgroup tree
-  \item implemented through file system permissions
+  \item Less-privileged process owns a part of the cgroup tree
+  \item Implemented through file system permissions
   \item Delegate=yes in systemd units
-  \item cutoff \emph{not} at the directory level
+  \item Cutoff is \emph{not} at the directory level
   \end{itemize}
 \end{frame}
 
@@ -225,8 +225,8 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
   \begin{itemize}
   \item Delegate=io pids memory ...
-  \item delegation may be nested
-  \item resources are divided hierarchically
+  \item Delegation may be nested
+  \item Resources are divided hierarchically
   \end{itemize}
 \end{frame}
 
@@ -240,17 +240,17 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   v1 operated on threads, v2 operates on processes
   \medskip\pause
 
-  only supported by selected controllers (cpu, cpuset)
+  Only supported by selected controllers (cpu, cpuset)
   \medskip\pause
 
-  a leaf cgroup may be switched to threaded mode and subdivided\\
+  A leaf cgroup may be switched to threaded mode and further subdivided\\
   \mintinline{console}{        $ echo threaded > $CGROUP/cgroup.type}\\
   \pause
 
   \texttt{cgroup.threads}
   \medskip\pause
 
-  used by libvirt
+  Used by libvirt to manage QEMU vCPU threads
 \end{frame}
 
 \setbeamercolor{background canvas}{bg=orange}
