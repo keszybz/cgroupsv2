@@ -305,12 +305,8 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
   \item \textbf{memory.min}\,--\,Hard memory protection. If memory usage is below the limit the cg memory won't be reclaimed.
   \item \textbf{memory.low}\,--\,Soft memory protection. If memory usage is below the limit the cg memory can be reclaimed only if there is no memory to be reclaimed from unprotected cgroups.
   \item \textbf{memory.high}\,--\,Memory throttle limit. If memory usage goes above the limit the processes in the cgroup are throttled and put under heavy reclaim pressure.
-  \item \textbf{memory.max}\,--\,Hard limit for memory usage. You can use K, M, G, T suffixes (e.g. MemoryMax=1G).
+  \item \textbf{memory.max}\,--\,Hard limit for memory usage (OOM killer is invoked if usage goes above the limit)
   \end{itemize}
-
-  After you exhaust your memory limit then service is very likely to
-  get killed by OOM killer. To prevent that you need to adjust
-  \texttt{OOMScoreAdjust} value as well.
 \end{frame}
 
 \begin{frame}
