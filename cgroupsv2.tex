@@ -315,10 +315,9 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
 \begin{frame}
   \frametitle{Resource management\,--\,Block I/O}
-  \texttt{io} controller in cgroup v2 allows for quite fine grained tuning.
-  systemd provides following options for configuring this subsystem:
+  \texttt{io} controller in cgroup v2 allows for very fine grained settings (per device)
   \begin{itemize}
-  \item \textbf{io.weight}\,--\,IO weight
+  \item \textbf{io.weight}\,--\,IO weight (work-conserving)
   \item \textbf{io.max}\,--\,per-device absolute bandwidth limit (e.g. \texttt{8:16 rbps=2097152 wiops=120})
   \item \textbf{io.latency}\,--\,per-device latency target protection (e.g. \texttt{8:16 target=10000})
   \end{itemize}
