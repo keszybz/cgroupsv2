@@ -300,11 +300,15 @@ drwxr-xr-x. zbyszek zbyszek xdg-document-portal.service/
 
 \begin{frame}
   \frametitle{Resource management\,--\,Memory}
-  Partitioning available memory with systemd and cgroup v2 memory controller is rather complicated. Multiple options are available,
+  cgroup v2 memory controller implements memory usage limits but also very useful protections (not available in cgroup v1),
+
   \begin{itemize}
   \item \textbf{memory.min}\,--\,Hard memory protection. If memory usage is below the limit the cg memory won't be reclaimed.
+
   \item \textbf{memory.low}\,--\,Soft memory protection. If memory usage is below the limit the cg memory can be reclaimed only if there is no memory to be reclaimed from unprotected cgroups.
+
   \item \textbf{memory.high}\,--\,Memory throttle limit. If memory usage goes above the limit the processes in the cgroup are throttled and put under heavy reclaim pressure.
+
   \item \textbf{memory.max}\,--\,Hard limit for memory usage (OOM killer is invoked if usage goes above the limit)
   \end{itemize}
 \end{frame}
